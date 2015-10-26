@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
 	initjit(&state, actions);
 
 	unsigned int maxpc = 0;
+	unsigned int counter1 = 0;
 	int pcstack[MAX_NESTING];
 	int *top = pcstack, *limit = pcstack + MAX_NESTING;
-
 	// Function prologue.
 	|  push PTR
 	|  mov  PTR, rdi      // rdi store 1st argument
@@ -39,16 +39,28 @@ int main(int argc, char *argv[])
 	for (char *p = read_file(argv[1]); *p; p++) {
 		switch (*p) {
 		case '>':
-			|  inc  PTR
+			for(counter1 = 0; (*p) && ( (*p) == '>'); counter1++ )
+				p++;
+			p--;
+			|  add   PTR, counter1
 			break;
 		case '<':
-			|  dec  PTR
+			for(counter1 = 0; (*p) && ( (*p) == '<'); counter1-- )
+				p++;
+			p--;
+			|  add   PTR, counter1
 			break;
 		case '+':
-			|  inc  byte [PTR]
+			for(counter1 = 0; (*p) && ( (*p) == '+'); counter1++ )
+				p++;
+			p--;
+			|  add   byte [PTR], counter1
 			break;
 		case '-':
-			|  dec  byte [PTR]
+			for(counter1 = 0; (*p) && ( (*p) == '-'); counter1-- )
+				p++;
+			p--;
+			|  add   byte [PTR], counter1
 			break;
 		case '.':
 			|  movzx edi, byte [PTR]
